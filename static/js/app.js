@@ -97,13 +97,14 @@ function createDropDown() {
 
 function addDropdownOption(optionValue, optionText) {
     var dropdown = d3.select("#selDataset");
-    // create an option tag
-    var option = d3.create("option")
-        .attr("value", optionValue)// edit the option attribute
-        .text(optionText);// edit the option text
-    // append the option to the dropdown
-    dropdown.append(option);
-    return option;
+
+    //alt working version
+    dropdown.append('option')           // create an option tag
+                                        // append the option to the dropdown
+            .attr('value', optionValue) // edit the option attribute
+            .text(optionText);          // edit the option text
+
+    // @todo: return a reference to option
 }
 
 function test() {
