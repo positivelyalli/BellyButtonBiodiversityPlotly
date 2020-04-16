@@ -45,7 +45,7 @@ function fetchData() {
     });
 }
 function getOtuData(data) {
-    var sample_values = data.samples.samples_values;
+    var sample_values = data.samples.sample_values;
     console.log(sample_values);
 
     var otu_ids = data.samples.otu_ids;
@@ -54,7 +54,7 @@ function getOtuData(data) {
     var otu_labels = data.samples.otu_labels; 
     console.log(otu_labels);
     return {
-        "sample_values": samples_values,
+        "sample_values": sample_values,
         "otu_ids": otu_ids,
         "otu_labels": otu_labels
     };
@@ -75,11 +75,19 @@ function getMetaData(data) {
     meta.metaData_id = data.metadata.id;
     meta.wfreq = data.wfreq.wfreq;
     */
+   console.log("getMetaData completed");
 
     return {
-        
+        "metaData_id": metaData_id,
+        "ethnicity": ethnicity,
+        "gender": gender,
+        "age": age,
+        "location": location,
+        "bbtype": bbtype,
+        "wfreq": wfreq
     };
 }
+
 
 
 
