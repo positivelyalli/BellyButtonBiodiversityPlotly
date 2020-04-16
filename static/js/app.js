@@ -29,22 +29,57 @@
         
 //     });
 // }
+var otuData = {};
+var metadata = {};
+var nameIndex = [];
 
-function getOtuData() {
+function fetchData() {
     var queryUrl = 'samples.json';
     d3.json(queryUrl).then(function(data) {
-        var sample_values = data.samples.samples_values;
-        var otu_ids = data.samples.otu_ids;
-        var otu_labels = data.samples.otu_labels; 
+        otuData = getOtuData(data);
+        metadata = getMetaData(data);
+        nameIndex = getNameIndex(data);
+
+        // Old Code
         
     });
+    return data;
 }
+function getOtuData(data) {
+    var sample_values = data.samples.samples_values;
+    console.log(sample_values);
 
-function getMetaData() {
-    var queryUrl = 'sample.json';
-    d3.json(queryUrl).then(function(data2) {
+    var otu_ids = data.samples.otu_ids;
+    console.log(otu_ids);
 
-    });
+    var otu_labels = data.samples.otu_labels; 
+    console.log(otu_labels);
+    return {
+        "sample_values": samples_values,
+        "otu_ids": otu_ids,
+        "otu_labels": otu_labels
+    };
+};
+
+function getMetaData(data) {
+    var metaData_id = data.metadata.id;
+    var ethnicity = data.metadata.ethnicity;
+    var gender = data.metadata.gender;
+    var age = data.metadata.age;
+    var location = data.metadata.location;
+    var bbtype = data.metadata.bbtype;
+    var wfreq = data.wfreq.wfreq;
+
+    // DOES NOT DESTROY REFERENCES
+    /*
+    var meta = data.metadata;
+    meta.metaData_id = data.metadata.id;
+    meta.wfreq = data.wfreq.wfreq;
+    */
+
+    return {
+        
+    };
 }
 
 
