@@ -89,9 +89,26 @@ function getOtuData(data) {
 // }
 
 
+// Populate the dropdown with names array
+function createDropDown() {
+    // select dropdown by id
+    var dropdown = d3.select("#selDataset");
+}
 
+function addDropdownOption(optionValue, optionText) {
+    var dropdown = d3.select("#selDataset");
+    // create an option tag
+    var option = d3.create("option")
+        .attr("value", optionValue)// edit the option attribute
+        .text(optionText);// edit the option text
+    // append the option to the dropdown
+    dropdown.append(option);
+    return option;
+}
 
-
+function test() {
+    addDropdownOption(75, "75");
+}
 
 // @TODO Bar Chart
 // samples_values as values for bar_chart
