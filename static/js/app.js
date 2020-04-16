@@ -37,7 +37,7 @@ function fetchData() {
     var queryUrl = 'samples.json';
     d3.json(queryUrl).then(function(data) {
         otuData = getOtuData(data);
-        metadata = getMetaData(data);
+        // metadata = getMetaData(data);
         nameIndex = getNameIndex(data);
 
         // Old Code
@@ -60,33 +60,33 @@ function getOtuData(data) {
     };
 };
 
-function getMetaData(data) {
-    var metaData_id = data.metadata.id;
-    var ethnicity = data.metadata.ethnicity;
-    var gender = data.metadata.gender;
-    var age = data.metadata.age;
-    var location = data.metadata.location;
-    var bbtype = data.metadata.bbtype;
-    var wfreq = data.wfreq.wfreq;
+// function getMetaData(data) {
+//     var metaData_id = data.metadata.id;
+//     var ethnicity = data.metadata.ethnicity;
+//     var gender = data.metadata.gender;
+//     var age = data.metadata.age;
+//     var location = data.metadata.location;
+//     var bbtype = data.metadata.bbtype;
+//     var wfreq = data.metadata.wfreq;
 
-    // DOES NOT DESTROY REFERENCES
-    /*
-    var meta = data.metadata;
-    meta.metaData_id = data.metadata.id;
-    meta.wfreq = data.wfreq.wfreq;
-    */
-   console.log("getMetaData completed");
+//     // DOES NOT DESTROY REFERENCES
+//     /*
+//     var meta = data.metadata;
+//     meta.metaData_id = data.metadata.id;
+//     meta.wfreq = data.wfreq.wfreq;
+//     */
+//    console.log("getMetaData completed");
 
-    return {
-        "metaData_id": metaData_id,
-        "ethnicity": ethnicity,
-        "gender": gender,
-        "age": age,
-        "location": location,
-        "bbtype": bbtype,
-        "wfreq": wfreq
-    };
-}
+//     return {
+//         "metaData_id": metaData_id,
+//         "ethnicity": ethnicity,
+//         "gender": gender,
+//         "age": age,
+//         "location": location,
+//         "bbtype": bbtype,
+//         "wfreq": wfreq
+//     };
+// }
 
 
 
