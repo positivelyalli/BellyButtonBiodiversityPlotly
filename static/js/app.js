@@ -41,9 +41,8 @@ function fetchData() {
         nameIndex = getNameIndex(data);
 
         // Old Code
-        
+    console.log("fetch completed")
     });
-    return data;
 }
 function getOtuData(data) {
     var sample_values = data.samples.samples_values;
