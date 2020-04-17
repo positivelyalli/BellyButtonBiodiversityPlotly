@@ -7,14 +7,33 @@ var nameIndex = [];
 function fetchData() {
     var queryUrl = 'samples.json';
     d3.json(queryUrl).then(function(data) {
-        otuData = getOtuData(data);
-        // metadata = getMetaData(data);
+        
+        // Populate the dropdown
         nameIndex = getNames(data);
         createDropDown(nameIndex);
-        // Old Code
+
+        // get filtered data:
+        // var selectedID = d3.select(#drop-down)
+        // var filteredData = ....filter(selectedID =>)
+
+        // Populate Metadata
+        // keep in mind key-value pairs
+        //createMetaData(filteredData);
+
+        
+      
+        // plots data
+        otuData = getOtuData(data);
     console.log("fetch completed")
     });
 }
+
+function getFilteredData(data, inputValue) {
+    var filteredData = data.metadata.filter(nameID => nameID.id == inputValue);
+    console.log(filteredData);
+    return filteredData;
+}
+
 function getOtuData(data) {
     var sample_values = data.samples.sample_values;
     console.log(sample_values);
@@ -34,6 +53,20 @@ function getOtuData(data) {
 function getNames(data) {
     return data.names;
 }
+
+
+
+function createMetaData(data) {
+    var dataTable = d3.select("#sample-metadata");
+    Object.entries(data).forEach(([key, value]) => {
+        dataTable.append().text(key,value);
+    });
+}
+
+// var frequencyCounts = counter(value);
+//   Object.entries(frequencyCounts).forEach(([key, value]) => {
+//     var li = output.append("li").text(`${key}: ${value}`);
+//   });
 
 
 // Populate the dropdown with names array
@@ -64,6 +97,24 @@ function test() {
 }   
 
 test();
+
+// function updateDemoInfo() {
+//     var demoInfo = d3.select("#sample-metadata");
+//     console.log(demoInfo);
+
+//     var dropdown = d3.select("#selDataset");
+// }
+
+function optionChanged(nameID) {
+
+    filteredData = getFilteredData(nameID);
+    createMetaData(filteredData);
+
+    // createPlots(filteredData);
+    // createBarPlot(filteredData);
+    // createBubblePlot(filteredData);
+
+}
 
 // @TODO Bar Chart
 // samples_values as values for bar_chart
