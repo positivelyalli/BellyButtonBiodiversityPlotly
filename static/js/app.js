@@ -18,7 +18,8 @@ function fetchData() {
 
         // Populate Metadata
         // keep in mind key-value pairs
-        //createMetaData(filteredData);
+        // createMetaData(filteredData)
+        getMetaData(data);
 
         
       
@@ -35,19 +36,22 @@ function getFilteredData(data, inputValue) {
 }
 
 function getOtuData(data) {
-    var sample_values = data.samples.sample_values;
-    console.log(sample_values);
+    var queryUrl = 'samples.json';
+    d3.json(queryUrl).then(function(data) {
+        var sample_values = data.samples.sample_values;
+        console.log(sample_values);
 
-    var otu_ids = data.samples.otu_ids;
-    console.log(otu_ids);
+        var otu_ids = data.samples.otu_ids;
+        console.log(otu_ids);
 
-    var otu_labels = data.samples.otu_labels; 
-    console.log(otu_labels);
-    return {
-        "sample_values": sample_values,
-        "otu_ids": otu_ids,
-        "otu_labels": otu_labels
-    };
+        var otu_labels = data.samples.otu_labels; 
+        console.log(otu_labels);
+        return {
+            "sample_values": sample_values,
+            "otu_ids": otu_ids,
+            "otu_labels": otu_labels
+        };
+    });
 }
 
 function getNames(data) {
@@ -56,12 +60,20 @@ function getNames(data) {
 
 
 
-function createMetaData(data) {
+function getMetaData(data) {
     var dataTable = d3.select("#sample-metadata");
     Object.entries(data).forEach(([key, value]) => {
-        dataTable.append().text(key,value);
+        var li = dataTable.append('li').text(`${key}, ${value}`);
     });
 }
+ 
+function getMetaData(data) {
+    var dataTable = d3.select("#sample-metadata");
+    data.forEach(function(item, index) {
+        dataTable.append('li').text(item, item);
+    })
+}
+
 
 // var frequencyCounts = counter(value);
 //   Object.entries(frequencyCounts).forEach(([key, value]) => {
@@ -108,7 +120,7 @@ test();
 function optionChanged(nameID) {
 
     filteredData = getFilteredData(nameID);
-    createMetaData(filteredData);
+    getMetaData(filteredData);
 
     // createPlots(filteredData);
     // createBarPlot(filteredData);
@@ -117,11 +129,39 @@ function optionChanged(nameID) {
 }
 
 // @TODO Bar Chart
-// samples_values as values for bar_chart
+// sample_values as values for bar_chart
 
 // otu_ids as labels for bar chart
 
 // otu_lables as the hovertext for the bar chart
+
+// function createBarPlot() {
+    // d3.json(queryUrl).then(function(data){
+        var sample_values
+        
+        var trace1 = {
+            //   x: otuData.samples.sample_values,
+            //   y: otuData.samples.otu_ids,
+                x: ["beer", "wine", "martini", "margarita",
+                "ice tea", "rum & coke", "mai tai", "gin & tonic"],
+                y: [22.7, 17.1, 9.9, 8.7, 7.2, 6.1, 6.0, 4.6],   
+                type: "bar",
+                // text: otuData.samples.otu_labels
+            };
+        
+        var data = [trace1];
+        
+        var layout = {
+        title: "'Bar' Chart",
+        xaxis: { title: "Drinks"},
+        yaxis: { title: "% of Drinks Ordered"}
+        };
+    
+        Plotly.newPlot("bar", data, layout);
+    // });
+
+// }
+
 
 
 
@@ -135,6 +175,27 @@ function optionChanged(nameID) {
 // Use otu_ids for the marker colors.
 
 // Use otu_labels for the text values.
+var trace1 = {
+    x: [1, 2, 3, 4],
+    y: [10, 11, 12, 13],
+    mode: 'markers',
+    marker: {
+      color: ['rgb(93, 164, 214)', 'rgb(255, 144, 14)',  'rgb(44, 160, 101)', 'rgb(255, 65, 54)'],
+      opacity: [1, 0.8, 0.6, 0.4],
+      size: [40, 60, 80, 100]
+    }
+  };
+  
+  var data = [trace1];
+  
+  var layout = {
+    title: 'Marker Size and Color',
+    showlegend: false,
+    height: 800,
+    width: 800
+  };
+  
+  Plotly.newPlot('bubble', data, layout);
 
 
 // @TODO Demographic Info
