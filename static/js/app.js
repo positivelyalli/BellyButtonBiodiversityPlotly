@@ -14,13 +14,27 @@ function fetchData() {
 
         // Populate Metadata for an individual
         // keep in mind key-value pairs
-        updateDemoInfo(data.metadata[0]);
+        metadata = data.metadata
+        // updateDemoInfo(data.metadata[0]);
 
         // plots data
         otuData = getOtuData(data);
         console.log(otuData);
-        console.log("fetch completed")
+        console.log("fetch completed");
+
+        createDashboard();
+
     });
+}
+fetchData();
+
+function createDashboard() {
+    var selectedID = d3.select('#selDataset').node().value;
+
+    // @todo: metadata[0] is hard carded and needs to be based on selectedID
+    updateDemoInfo(metadata[0]);
+    createBubbleChart(otuData, selectedID);
+    createBarPlot(filteredOtuData(otuData));
 }
 
 // takes data and filters it based on the id from the dropdown
@@ -35,47 +49,43 @@ function getFilteredData(data, inputValue) {
 
 // takes data and filters it based on the id from the dropdown
 function getFilteredSampleData(data, inputValue) {
+    inputValue = d3.select('#selDataset').node().value;
     // filters the metadata based on the id from the dropdown
-    var filteredSampleData = data.sample.filter(function (individual) {
+    var filteredSampleData = data.filter(function (individual) {
         return individual.id == parseInt(inputValue); // there is an id that is an integer and one is a string
     });
     console.log(filteredSampleData);
-    return filteredData;
-}
+    return filteredSampleData;
+} // Type Error Cannot read property sample
 
 
 function getOtuData(data) {
-    // path for json data object
-    var queryUrl = 'samples.json';
-    // get json data object
-    d3.json(queryUrl).then(function (data) {
-        // Sample value data from the first index of samples
-        var sample_values = data.samples[0].sample_values;
-        console.log("sample values");
-        // Print sample value data from the first index of samples
-        console.log(data.samples[0].sample_values)
+    var selectedID = d3.select('#selDataset').node().value;
+    // Sample value data from the first index of samples
+    // @todo: data.samples[0] is hard carded and needs to be based on selectedID
+    var sample_values = data.samples[0].sample_values;
 
-        // OTU ids from the first index of samples
-        var otu_ids = data.samples[0].otu_ids;
-        // Print OTU ids from the first index of samples
-        console.log(otu_ids);
+    // OTU ids from the first index of samples
+    // @todo: data.samples[0] is hard carded and needs to be based on selectedID
+    var otu_ids = data.samples[0].otu_ids;
 
-        // OTU labels from the first index of samples
-        var otu_labels = data.samples[0].otu_labels;
-        // Print OTU labels from the first index of samples 
-        console.log(otu_labels);
+    // OTU labels from the first index of samples
+    // @todo: data.samples[0] is hard carded and needs to be based on selectedID
+    var otu_labels = data.samples[0].otu_labels;
 
-        // Return a js object of the data to use in the charts
-        otuData = {
-            "sample_values": sample_values,
-            "otu_ids": otu_ids,
-            "otu_labels": otu_labels
-        };
-    });
+    // Return a js object of the data to use in the charts
+    otuData = {
+        
+        "sample_values": sample_values,
+        "otu_ids": otu_ids,
+        "otu_labels": otu_labels
+    };
+    return otuData;
 }
 
 // Data filtered by top 10 and sorted descending
 function filteredOtuData(otuData) {
+    // takes the top 10 sample values and makes it descending
     var x = otuData.sample_values.slice(0, 10).reverse();
     var y = otuData.otu_ids.slice(0, 10).reverse().map(function (value) {
         return "OTU " + value;
@@ -88,26 +98,21 @@ function filteredOtuData(otuData) {
     }
 }
 
+
+
 // Retrieves an array of name ids from the json file
 function getNames(data) {
     return data.names;
 }
 
-
-
 // takes a metadata item and renders the demographic info box
 function updateDemoInfo(metadataItem) {
     var dataTable = d3.select("#sample-metadata");
     dataTable.html("");
-    console.log("metadataItem: " + metadataItem[0])
     Object.keys(metadataItem).forEach(function (key) {
         dataTable.append('li').text(`${key}: ${metadataItem[key]}`)
     });
 }
-
-
-
-
 
 // Populate the dropdown with names array
 function createDropDown(ids) {
@@ -132,12 +137,6 @@ function addDropdownOption(optionValue, optionText) {
     // return a reference to option
 }
 
-function test() {
-    fetchData();
-}
-
-test();
-
 // function updateDemoInfo() {
 //     var demoInfo = d3.select("#sample-metadata");
 //     console.log(demoInfo);
@@ -161,13 +160,8 @@ function optionChanged(nameID) {
 
 }
 
-// @TODO Bar Chart
-// sample_values as values for bar_chart
-
-// otu_ids as labels for bar chart
-
-// otu_lables as the hovertext for the bar chart\
-
+// Bar Chart
+// 
 function test_createBarPlot() {
     var barChartData = filteredOtuData(otuData);
     createBarPlot(barChartData);
@@ -176,7 +170,6 @@ function test_createBarPlot() {
 function createBarPlot(sample_data) {
     // d3.json(queryUrl).then(function(data){
     //     var sample_values = data.samples.sample_values
-
 
     var trace1 = {
         //   x: otuData.samples[0].sample_values,
@@ -203,27 +196,17 @@ function createBarPlot(sample_data) {
 
 
 
-// @TODO Bubble Chart
-//Use otu_ids for the x values.
-
-// Use sample_values for the y values.
-
-// Use sample_values for the marker size.
-
-// Use otu_ids for the marker colors.
-
-// Use otu_labels for the text values.
-
+// Bubble Chart
+// creates bubble chart with marker color and size mapped to arrays 
 function test_createBubbleChart() {
     var bubbleData = otuData;
     createBubbleChart(bubbleData, 940);
 }
 
-
 function createBubbleChart(sample_data) {
     var trace1 = {
         x: otuData.otu_ids.map(function (id){ 
-            console.log(id);
+            // console.log(id);
             return id;
         }),
         y: otuData.sample_values,
