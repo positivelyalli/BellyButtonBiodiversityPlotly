@@ -6,56 +6,60 @@ var nameIndex = [];
 
 function fetchData() {
     var queryUrl = 'samples.json';
-    d3.json(queryUrl).then(function(data) {
-        
+    d3.json(queryUrl).then(function (data) {
+
         // Populate the dropdown
         nameIndex = getNames(data);
         createDropDown(nameIndex);
 
-        // FilteredOtuData
-        // var selectedID = d3.select(#drop-down)
-        // var filteredData = ....filter(selectedID =>)
-
-        // Populate Metadata
+        // Populate Metadata for an individual
         // keep in mind key-value pairs
-        // createMetaData(filteredData)
         updateDemoInfo(data.metadata[0]);
 
-        
-      
         // plots data
         otuData = getOtuData(data);
         console.log(otuData);
-    console.log("fetch completed")
+        console.log("fetch completed")
     });
 }
 
-function getFilteredData(data, selectedSubjectID) {
-    var filteredData = data.metadata.filter(function(nameID){
-        return nameID.id == inputValue; // there is an id that is an integer and one is a string
+// takes data and filters it based on the id from the dropdown
+function getFilteredData(data, inputValue) {
+    // filters the metadata based on the id from the dropdown
+    var filteredData = data.metadata.filter(function (individual) {
+        return individual.id == parseInt(inputValue); // there is an id that is an integer and one is a string
     });
     console.log(filteredData);
     return filteredData;
 }
 
+// takes data and filters it based on the id from the dropdown
+function getFilteredSampleData(data, inputValue) {
+    // filters the metadata based on the id from the dropdown
+    var filteredSampleData = data.sample.filter(function (individual) {
+        return individual.id == parseInt(inputValue); // there is an id that is an integer and one is a string
+    });
+    console.log(filteredSampleData);
+    return filteredData;
+}
 
 
 function getOtuData(data) {
     // path for json data object
     var queryUrl = 'samples.json';
     // get json data object
-    d3.json(queryUrl).then(function(data) {
+    d3.json(queryUrl).then(function (data) {
         // Sample value data from the first index of samples
         var sample_values = data.samples[0].sample_values;
         console.log("sample values");
         // Print sample value data from the first index of samples
         console.log(data.samples[0].sample_values)
-        
+
         // OTU ids from the first index of samples
         var otu_ids = data.samples[0].otu_ids;
         // Print OTU ids from the first index of samples
         console.log(otu_ids);
-        
+
         // OTU labels from the first index of samples
         var otu_labels = data.samples[0].otu_labels;
         // Print OTU labels from the first index of samples 
@@ -72,31 +76,11 @@ function getOtuData(data) {
 
 // Data filtered by top 10 and sorted descending
 function filteredOtuData(otuData) {
-    var x = [163, 126, 113, 78, 71, 51, 50, 47, 40, 40];
-    var y = [
-        'OTU 1167', 
-        'OTU 2859', 
-        'OTU 482', 
-        'OTU 2264', 
-        'OTU 41', 
-        'OTU 1189', 
-        'OTU 352', 
-        'OTU 189', 
-        'OTU 2318', 
-        'OTU 1977'
-    ];
-    var text = [
-        "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Porphyromonas", 
-        "Bacteria;Firmicutes;Clostridia;Clostridiales;IncertaeSedisXI;Peptoniphilus", 
-        "Bacteria", 
-        "Bacteria;Firmicutes;Clostridia;Clostridiales;IncertaeSedisXI", 
-        "Bacteria", 
-        "Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Porphyromonadaceae;Porphyromonas", 
-        "Bacteria", 
-        "Bacteria", 
-        "Bacteria;Firmicutes;Clostridia;Clostridiales;IncertaeSedisXI;Anaerococcus", 
-        "Bacteria;Firmicutes;Clostridia;Clostridiales"
-    ];
+    var x = otuData.sample_values.slice(0, 10).reverse();
+    var y = otuData.otu_ids.slice(0, 10).reverse().map(function (value) {
+        return "OTU " + value;
+    });
+    var text = otuData.otu_labels.slice(0, 10).reverse();
     return {
         "x": x,
         "y": y,
@@ -110,55 +94,26 @@ function getNames(data) {
 }
 
 
-function js_getMetaData(data) {
-    var dataTable = d3.select("#sample-metadata");
-    Object.entries(data).forEach(([key, value]) => {
-        dataTable.append('li').text(`${key}, ${value}`);
-    });
-}
-
-// Creates a Demographic Chart from a 'Data' object,
-// primarily uses data.metadata as source
-function createDemoChart(data) {
-    var dataTable = d3.select("#sample-metadata");
-
-    // itterates through the metadata array
-    data.metadata.forEach(function(item, index) {
-
-        // converts the item object to a string
-        // var text = `${index}, ${item} \t\t`;
-        var text = '';
-
-        Object.keys(item).forEach(function(key){
-            text += `${key} :: ${item[key]}, \t`;
-        });
-
-        // appends the completed item to the array
-        dataTable.append('li').text(text);
-    })
-}
 
 // takes a metadata item and renders the demographic info box
-function updateDemoInfo(metadataItem){
+function updateDemoInfo(metadataItem) {
     var dataTable = d3.select("#sample-metadata");
-
-    Object.keys(metadataItem).forEach(function(key){
-        dataTable.append('li').text( `${key}: ${metadataItem[key]}`)
+    dataTable.html("");
+    console.log("metadataItem: " + metadataItem[0])
+    Object.keys(metadataItem).forEach(function (key) {
+        dataTable.append('li').text(`${key}: ${metadataItem[key]}`)
     });
 }
 
 
-// var frequencyCounts = counter(value);
-//   Object.entries(frequencyCounts).forEach(([key, value]) => {
-//     var li = output.append("li").text(`${key}: ${value}`);
-//   });
+
 
 
 // Populate the dropdown with names array
 function createDropDown(ids) {
     // select dropdown by id
     var dropdown = d3.select("#selDataset");
-    ids.forEach(function (item, index){
+    ids.forEach(function (item, index) {
         addDropdownOption(item, item);
     });
 
@@ -169,9 +124,9 @@ function addDropdownOption(optionValue, optionText) {
 
     //alt working version
     dropdown.append('option')           // create an option tag
-                                        // append the option to the dropdown
-            .attr('value', optionValue) // edit the option attribute
-            .text(optionText);          // edit the option text
+        // append the option to the dropdown
+        .attr('value', optionValue) // edit the option attribute
+        .text(optionText);          // edit the option text
 
     // @todo:
     // return a reference to option
@@ -179,7 +134,7 @@ function addDropdownOption(optionValue, optionText) {
 
 function test() {
     fetchData();
-}   
+}
 
 test();
 
@@ -190,11 +145,16 @@ test();
 //     var dropdown = d3.select("#selDataset");
 // }
 
+// Assuming it will run after page load and after data has been fetched
 function optionChanged(nameID) {
     console.log("optionChanged", nameID);
-    filteredData = getFilteredData(nameID);
-    getMetaData(filteredData);
 
+    var queryUrl = 'samples.json';
+    d3.json(queryUrl).then(function (data) {
+        filteredData = getFilteredData(data, nameID);
+        console.log("filteredData" + filteredData);
+        updateDemoInfo(filteredData[0]);
+    });
     // createPlots(filteredData);
     // createBarPlot(filteredData);
     // createBubblePlot(filteredData);
@@ -216,23 +176,23 @@ function test_createBarPlot() {
 function createBarPlot(sample_data) {
     // d3.json(queryUrl).then(function(data){
     //     var sample_values = data.samples.sample_values
-    
-    
+
+
     var trace1 = {
         //   x: otuData.samples[0].sample_values,
         //   y: otuData.samples[0].otu_ids,
         x: sample_data.x,
-        y: sample_data.y,   
+        y: sample_data.y,
         type: "bar",
         text: sample_data.text,
         orientation: 'h'
-        };
-    
+    };
+
     var data = [trace1];
-    
+
     var layout = {
-    title: "Top 10 OTU Chart",
-    xaxis: { title: "Sample Values"}
+        title: "Top 10 OTU Chart",
+        xaxis: { title: "Sample Values" }
     };
 
     Plotly.newPlot("bar", data, layout);
@@ -253,31 +213,40 @@ function createBarPlot(sample_data) {
 // Use otu_ids for the marker colors.
 
 // Use otu_labels for the text values.
-var trace1 = {
-    x: [1, 2, 3, 4],
-    y: [10, 11, 12, 13],
-    mode: 'markers',
-    marker: {
-      color: ['rgb(93, 164, 214)', 'rgb(255, 144, 14)',  'rgb(44, 160, 101)', 'rgb(255, 65, 54)'],
-      opacity: [1, 0.8, 0.6, 0.4],
-      size: [40, 60, 80, 100]
-    }
-  };
-  
-  var data = [trace1];
-  
-  var layout = {
-    title: 'Marker Size and Color',
-    showlegend: false,
-    height: 800,
-    width: 800
-  };
-  
-  Plotly.newPlot('bubble', data, layout);
+
+function test_createBubbleChart() {
+    var bubbleData = otuData;
+    createBubbleChart(bubbleData, 940);
+}
 
 
-// @TODO Demographic Info
-// Display the metadata; an individual's demographic info
-// Display each key-value pair from the metadata JSON object somewhere on the page
+function createBubbleChart(sample_data) {
+    var trace1 = {
+        x: otuData.otu_ids.map(function (id){ 
+            console.log(id);
+            return id;
+        }),
+        y: otuData.sample_values,
+        mode: 'markers',
+        type: 'scatter',
+        marker: {
+            color: otuData.otu_ids,
+            size: otuData.sample_values,
+            colorscale: 'Earth'
+        },
+        text: otuData.otu_labels
+    };
 
-// Update allthe plots using a dropdown anytime a new sample is selected
+    var data = [trace1];
+
+    var layout = {
+        title: 'Marker Size and Color',
+        // showlegend: false,
+        // height: 800,
+        // width: 800
+        xaxis: { title: "Sample Values" }
+    };
+
+
+    Plotly.newPlot('bubble', data, layout);
+}
