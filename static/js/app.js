@@ -1,5 +1,5 @@
 
-
+var allData = {};
 var otuData = {};
 var metadata = {};
 var nameIndex = [];
@@ -7,6 +7,10 @@ var nameIndex = [];
 function fetchData() {
     var queryUrl = 'samples.json';
     d3.json(queryUrl).then(function (data) {
+
+        //store the api response globally
+        allData = data;
+        console.log('data saved locally')
 
         // Populate the dropdown
         nameIndex = getNames(data);
@@ -31,9 +35,16 @@ fetchData();
 function createDashboard() {
     var selectedID = d3.select('#selDataset').node().value;
 
-    // @todo: metadata[0] is hard carded and needs to be based on selectedID
-    updateDemoInfo(metadata[0]);
-    createBubbleChart(otuData, selectedID);
+    var itemIndex = nameIndex.indexOf(selectedID);
+    if (itemIndex === -1) {
+        console.error("Error: Data not found")
+    };
+
+    var filteredData = getFilteredData(allData, selectedID);
+    var otuData = getOtuData(allData);
+
+    updateDemoInfo(filteredData[0]);// comes back as an array
+    createBubbleChart(otuData);
     createBarPlot(filteredOtuData(otuData));
 }
 
@@ -58,30 +69,38 @@ function getFilteredSampleData(data, inputValue) {
     return filteredSampleData;
 } // Type Error Cannot read property sample
 
-
 function getOtuData(data) {
     var selectedID = d3.select('#selDataset').node().value;
+
+    var itemIndex = nameIndex.indexOf(selectedID);
+    if (itemIndex === -1) {
+        console.error("Error: Data not found")
+    };
+
+    var sample_id = data.samples[itemIndex].id;
     // Sample value data from the first index of samples
     // @todo: data.samples[0] is hard carded and needs to be based on selectedID
-    var sample_values = data.samples[0].sample_values;
+    var sample_values = data.samples[itemIndex].sample_values; 
 
     // OTU ids from the first index of samples
     // @todo: data.samples[0] is hard carded and needs to be based on selectedID
-    var otu_ids = data.samples[0].otu_ids;
+    var otu_ids = data.samples[itemIndex].otu_ids;
 
     // OTU labels from the first index of samples
     // @todo: data.samples[0] is hard carded and needs to be based on selectedID
-    var otu_labels = data.samples[0].otu_labels;
+    var otu_labels = data.samples[itemIndex].otu_labels;
 
     // Return a js object of the data to use in the charts
     otuData = {
-        
+        "sample_id": sample_id,
         "sample_values": sample_values,
         "otu_ids": otu_ids,
         "otu_labels": otu_labels
     };
     return otuData;
 }
+
+//   
 
 // Data filtered by top 10 and sorted descending
 function filteredOtuData(otuData) {
@@ -147,17 +166,7 @@ function addDropdownOption(optionValue, optionText) {
 // Assuming it will run after page load and after data has been fetched
 function optionChanged(nameID) {
     console.log("optionChanged", nameID);
-
-    var queryUrl = 'samples.json';
-    d3.json(queryUrl).then(function (data) {
-        filteredData = getFilteredData(data, nameID);
-        console.log("filteredData" + filteredData);
-        updateDemoInfo(filteredData[0]);
-    });
-    // createPlots(filteredData);
-    // createBarPlot(filteredData);
-    // createBubblePlot(filteredData);
-
+    createDashboard();
 }
 
 // Bar Chart
@@ -172,8 +181,6 @@ function createBarPlot(sample_data) {
     //     var sample_values = data.samples.sample_values
 
     var trace1 = {
-        //   x: otuData.samples[0].sample_values,
-        //   y: otuData.samples[0].otu_ids,
         x: sample_data.x,
         y: sample_data.y,
         type: "bar",
@@ -181,14 +188,14 @@ function createBarPlot(sample_data) {
         orientation: 'h'
     };
 
-    var data = [trace1];
+    var pdata = [trace1];
 
     var layout = {
         title: "Top 10 OTU Chart",
         xaxis: { title: "Sample Values" }
     };
 
-    Plotly.newPlot("bar", data, layout);
+    Plotly.newPlot("bar", pdata, layout);
     // });
 
 }
@@ -220,7 +227,7 @@ function createBubbleChart(sample_data) {
         text: otuData.otu_labels
     };
 
-    var data = [trace1];
+    var pdata = [trace1];
 
     var layout = {
         title: 'Marker Size and Color',
@@ -231,5 +238,5 @@ function createBubbleChart(sample_data) {
     };
 
 
-    Plotly.newPlot('bubble', data, layout);
+    Plotly.newPlot('bubble', pdata, layout);
 }
